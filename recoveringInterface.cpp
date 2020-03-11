@@ -45,43 +45,34 @@ class Triangle: public Shape
 
 class IoObject {
 	public: 
-	int getint(istream &s) {int n; s>>n; return n;}
 	virtual IoObject * clone() const = 0;
 	virtual ~IoObject() {};
 };
-//TODO: convert to template
-struct IoCircle: Circle, IoObject {
-	IoCircle(istream &s): Circle{getint(s)} {};
-	IoCircle * clone() const { return new IoCircle{*this}; }
-	static IoObject * new_io_circle(istream &is) {
-		return new IoCircle(is);
+
+template<class T>
+struct IoShape: public T, public IoObject{
+	IoShape(istream &s){};
+	IoShape * clone() const {return new IoShape{*this}; }
+	static IoObject * new_io_shape(istream &is) {
+		return new IoShape(is);
 	}
 };
 
-struct IoRectangle: Rectangle, IoObject {
-	IoRectangle(istream &s): Rectangle{getint(s), getint(s)} {};
-	IoRectangle * clone() const { return new IoRectangle{*this}; }
-	static IoObject * new_io_rectangle(istream &is) {
-		return new IoRectangle(is);
-	}
-};
+int getint(istream &s) {int n; s>>n; return n;}
+/*Specializations*/
+template<> IoShape<Circle>::IoShape(istream &s): Circle{getint(s)} {};
+template<> IoShape<Rectangle>::IoShape(istream &s): Rectangle{getint(s), getint(s)} {};
+template<> IoShape<Triangle>::IoShape(istream &s): Triangle{getint(s), getint(s)} {}; //TODO: order of function call is coupled with order of member declaration
 
-struct IoTriangle: Triangle, IoObject {
-	IoTriangle(istream &s): Triangle{getint(s), getint(s)} {}; //TODO: order of function call is coupled with order of member declaration
-	IoTriangle * clone() const { return new IoTriangle{*this}; }
-	static IoObject * new_io_triangle(istream &is) {
-		return new IoTriangle(is);
-	}
-};
 
 using Pf = IoObject* (*)(istream &); //pointer to function taking an istream and returning an IoObject
 map<string,Pf> ioMap;
 
 void init()
 {
-	ioMap["rectangle"] = &IoRectangle::new_io_rectangle; 
-	ioMap["circle"] = &IoCircle::new_io_circle; 
-	ioMap["triangle"] = &IoTriangle::new_io_triangle; 
+	ioMap["rectangle"] = &IoShape<Rectangle>::new_io_shape; 
+	ioMap["circle"] = &IoShape<Circle>::new_io_shape; 
+	ioMap["triangle"] = &IoShape<Triangle>::new_io_shape; 
 }
 
 IoObject *getIoObject(istream &ss)

@@ -23,7 +23,7 @@ int main()
 {
 	//a new expression is used to create the object on heap unique_ptr ctor takes in a "raw" pointer of type T
 	//on destruction of unique_ptr object 'delete' is called
-	unique_ptr<int> pi1 = unique_ptr<int>(new int{10}; 
+	unique_ptr<int> pi1 = unique_ptr<int>(new int{10}); 
 	//make_unique does type deduction (because it is a template function) and calls new for us
 	//secondly it uses forwarding to send proper lval reference and rval reference to constructor of type T
 	unique_ptr<int> pi2 = make_unique<int>(10); 
